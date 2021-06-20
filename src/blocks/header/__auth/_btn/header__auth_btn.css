@@ -1,0 +1,10 @@
+.header__auth_btn {
+  font-style: normal;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 22px;
+  color: #A9A9A9;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { Route, Switch, Redirect, useHistory } from 'react-router-dom'
 import { CurrentUserContext } from '../contexts/CurrentUserContext'
 import { api } from '../utils/api'
+import { login, register } from '../utils/auth'
 
 import Main from './Main'
 import Header from './Header'
@@ -11,6 +13,10 @@ import AddPlacePopup from './AddPlacePopup'
 import EditAvatarPopup from './EditAvatarPopup'
 import EditProfilePopup from './EditProfilePopup'
 
+import ProtectedRoute from './ProtectedRoute'
+import Register from './Register'
+import Login from './Login'
+
 export default function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false)
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false)
@@ -18,6 +24,12 @@ export default function App() {
   const [selectedCard, setSelectedCard] = useState({ name: '', link: '' })
   const [currentUser, setCurrentUser] = useState({})
   const [cards, setCards] = useState([])
+
+  const [loggedIn, setLoggedIn] = useState(false)
+  // const [infoTooltipPopup, setInfoTooltipPopup] = useState(false)
+  // const [isSuccess, setIsSuccess] = useState(false)
+  const [email, setEmail] = useState('')
+  const history = useHistory()
 
   const [isLoading, setIsLoading] = useState(false)
 
@@ -118,19 +130,72 @@ export default function App() {
       .finally(() => setIsLoading(false))
   }
 
+  function handleLogin(email, password) {
+    login(email, password)
+      .then((data) => {
+        if (data.token) {
+          setEmail(email)
+          setLoggedIn(true)
+          history.push('/')
+        }
+      })
+      .catch((err) => {
+        console.log(err.message)
+      })
+  }
+
+  function handleRegister(email, password) {
+    register(email, password)
+      .then((res) => {
+        if (res) {
+          console.log('готово')
+          history.push('./sign-in')
+        } else {
+          console.error('что-то пошло не так');
+        }
+      })
+      .catch((err) => {console.log(err.message)})
+  }
+
+  function onSignOut() {
+    localStorage.removeItem('jwt')
+    history.push('/')
+    setEmail('')
+    setLoggedIn(false)
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className='page'>
-        <Header />
-        <Main
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          onCardDelete={handleDeleteCard}
-          onCardLike={handleLikeCard}
-          cards={cards}
+        <Header 
+          email={email}
+          onSignOut={onSignOut}
         />
+
+        <Switch>
+          <Route path='/sign-in'>
+            <Login onLogin={handleLogin} />
+          </Route>
+          <Route path='/sign-up'>
+            <Register onRegister={handleRegister} />
+          </Route>
+          <ProtectedRoute
+            path='/'
+            loggedIn={loggedIn}
+            component={Main}
+            onEditProfile={handleEditProfileClick}
+            onAddPlace={handleAddPlaceClick}
+            onEditAvatar={handleEditAvatarClick}
+            onCardClick={handleCardClick}
+            cards={cards}
+            onCardLike={handleLikeCard}
+            onCardDelete={handleDeleteCard}
+          />
+          <Route path='/'>
+            {loggedIn ? <Redirect to='/' /> : <Redirect to='/sign-in' />}
+          </Route>
+        </Switch>
+
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}
@@ -150,6 +215,7 @@ export default function App() {
           isLoading={isLoading}
         />
         <ImagePopup card={selectedCard} isClose={closeAllPopups} />
+
         <Footer />
       </div>
     </CurrentUserContext.Provider>
