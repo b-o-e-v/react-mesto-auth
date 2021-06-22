@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Route, Switch, Redirect, useHistory } from 'react-router-dom'
 import { CurrentUserContext } from '../contexts/CurrentUserContext'
 import { api } from '../utils/api'
-import { login, register } from '../utils/auth'
+import { login, register, getContent } from '../utils/auth'
 
 import Main from './Main'
 import Header from './Header'
@@ -17,6 +17,8 @@ import ProtectedRoute from './ProtectedRoute'
 import Register from './Register'
 import Login from './Login'
 
+import InfoTooltip from './InfoTooltip'
+
 export default function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false)
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false)
@@ -26,8 +28,8 @@ export default function App() {
   const [cards, setCards] = useState([])
 
   const [loggedIn, setLoggedIn] = useState(false)
-  // const [infoTooltipPopup, setInfoTooltipPopup] = useState(false)
-  // const [isSuccess, setIsSuccess] = useState(false)
+  const [infoTooltipPopup, setInfoTooltipPopup] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
   const [email, setEmail] = useState('')
   const history = useHistory()
 
@@ -42,6 +44,11 @@ export default function App() {
       })
       .catch((error) => console.log(error))
   }, [])
+
+  function handleConfirmRegister(bool) {
+    setInfoTooltipPopup(true)
+    setIsSuccess(bool)
+  }
 
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true)
@@ -59,6 +66,7 @@ export default function App() {
     setIsEditProfilePopupOpen(false)
     setIsAddPlacePopupOpen(false)
     setIsEditAvatarPopupOpen(false)
+    setInfoTooltipPopup(false)
     setSelectedCard({ name: '', link: '' })
   }
 
@@ -148,13 +156,15 @@ export default function App() {
     register(email, password)
       .then((res) => {
         if (res) {
-          console.log('готово')
+          handleConfirmRegister(true)
           history.push('./sign-in')
         } else {
-          console.error('что-то пошло не так');
+          handleConfirmRegister(false)
         }
       })
-      .catch((err) => {console.log(err.message)})
+      .catch((err) => {
+        console.log(err.message)
+      })
   }
 
   function onSignOut() {
@@ -164,13 +174,32 @@ export default function App() {
     setLoggedIn(false)
   }
 
+  const tokenCheck = useCallback(() => {
+    const jwt = localStorage.getItem('jwt')
+    if (jwt) {
+      getContent(jwt)
+        .then((res) => {
+          if (res) {
+            setLoggedIn(true)
+            setEmail(res.email)
+            history.push('/')
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      history.push('./sign-in')
+    }
+  }, [history])
+
+  useEffect(() => {
+    tokenCheck()
+  }, [tokenCheck])
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className='page'>
-        <Header 
-          email={email}
-          onSignOut={onSignOut}
-        />
+        <Header email={email} onSignOut={onSignOut} />
 
         <Switch>
           <Route path='/sign-in'>
@@ -196,6 +225,11 @@ export default function App() {
           </Route>
         </Switch>
 
+        <InfoTooltip
+          isOpen={infoTooltipPopup}
+          onClose={closeAllPopups}
+          isSuccess={isSuccess}
+        />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}

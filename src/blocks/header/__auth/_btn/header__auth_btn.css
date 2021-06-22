@@ -1,4 +1,5 @@
 .header__auth_btn {
+  padding: 0;
   font-style: normal;
   font-weight: normal;
   font-size: 18px;
@@ -7,4 +8,10 @@
   background-color: transparent;
   border: none;
   cursor: pointer;
+}
+
+@media screen and (max-width: 619px) {
+  .header__auth_btn {
+    margin-right: 19px;
+  }
 }

@@ -36,7 +36,7 @@ export default function AddPlacePopup({
       <label htmlFor='card-name-input' className='popup__label'>
         <input
           value={title}
-          onChange={e => setTitle(e.target.value)}
+          onChange={(e) => setTitle(e.target.value)}
           type='text'
           placeholder='Название'
           className='popup__input popup__input_string_card-name'
@@ -51,7 +51,7 @@ export default function AddPlacePopup({
       <label htmlFor='card-link-input' className='popup__label'>
         <input
           value={link}
-          onChange={e => setLink(e.target.value)}
+          onChange={(e) => setLink(e.target.value)}
           type='url'
           placeholder='Ссылка на картинку'
           className='popup__input popup__input_string_card-link'

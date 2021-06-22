@@ -13,3 +13,9 @@
 .header__auth_link:hover {
   opacity: 0.6;
 }
+
+@media screen and (max-width: 619px) {
+  .header__auth_link {
+    margin-right: 19px;
+  }
+}

@@ -19,7 +19,7 @@ export default function Register({ onRegister }) {
   }
 
   return (
-    <AuthForm 
+    <AuthForm
       title='Регистрация'
       email={email}
       password={password}

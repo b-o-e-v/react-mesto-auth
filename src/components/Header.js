@@ -17,7 +17,11 @@ export default function Header({ email, onSignOut }) {
       <Route exact path='/'>
         <div className='header__auth'>
           <p className='header__auth_email'>{email}</p>
-          <button className='header__auth_btn' onClick={onSignOut} type='button'>
+          <button
+            className='header__auth_btn'
+            onClick={onSignOut}
+            type='button'
+          >
             Выйти
           </button>
         </div>
