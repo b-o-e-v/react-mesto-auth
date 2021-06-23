@@ -13,13 +13,11 @@ export default function InfoTooltip({ isOpen, onClose, isSuccess }) {
         />
         <img
           className='popup__res'
-          src={isSuccess ? okIcon : errIcon}
-          alt={isSuccess ? 'успешно' : 'ошибка'}
+          src={isSuccess.res ? okIcon : errIcon}
+          alt={isSuccess.res ? 'успешно' : 'ошибка'}
         />
         <h3 className='popup__msg'>
-          {isSuccess
-            ? 'Вы успешно зарегистрировались!'
-            : 'Что-то пошло не так! Попробуйте ещё раз.'}
+          {isSuccess.msg}
         </h3>
       </div>
     </section>

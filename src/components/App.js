@@ -29,25 +29,27 @@ export default function App() {
 
   const [loggedIn, setLoggedIn] = useState(false)
   const [infoTooltipPopup, setInfoTooltipPopup] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [isSuccess, setIsSuccess] = useState({ res: false, msg: '' })
   const [email, setEmail] = useState('')
   const history = useHistory()
 
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    api
+    if (loggedIn) {
+      api
       .getServerData()
       .then(([userData, initialCards]) => {
         setCurrentUser(userData)
         setCards(initialCards)
       })
       .catch((error) => console.log(error))
-  }, [])
+    }
+  }, [loggedIn])
 
-  function handleConfirmRegister(bool) {
+  function handleConfirmRegister(bool, msg) {
     setInfoTooltipPopup(true)
-    setIsSuccess(bool)
+    setIsSuccess({ res: bool, msg: msg })
   }
 
   function handleEditProfileClick() {
@@ -106,20 +108,18 @@ export default function App() {
     api
       .deleteCard(card._id)
       .then(() => {
-        const newCards = cards.filter((c) => c._id !== card._id)
-        setCards(newCards)
+        setCards(cards => cards.filter(c => c._id !== card._id))
       })
       .catch((error) => console.log(error))
   }
 
   function handleLikeCard(card) {
-    const isLiked = card.likes.some((i) => i._id === currentUser._id)
+    const isLiked = card.likes.some(i => i._id === currentUser._id)
 
     api
       .likeCard(card._id, !isLiked)
       .then((newCard) => {
-        const newCards = cards.map((c) => (c._id === card._id ? newCard : c))
-        setCards(newCards)
+        setCards(cards => cards.map(c => c._id === card._id ? newCard : c))
       })
       .catch((error) => console.log(error))
   }
@@ -156,10 +156,10 @@ export default function App() {
     register(email, password)
       .then((res) => {
         if (res) {
-          handleConfirmRegister(true)
-          history.push('./sign-in')
+          handleConfirmRegister(true, 'Вы успешно зарегистрировались!')
+          history.push('/sign-in')
         } else {
-          handleConfirmRegister(false)
+          handleConfirmRegister(false, 'Что-то пошло не так! Попробуйте ещё раз.')
         }
       })
       .catch((err) => {
@@ -181,14 +181,14 @@ export default function App() {
         .then((res) => {
           if (res) {
             setLoggedIn(true)
-            setEmail(res.email)
+            setEmail(res.data.email)
             history.push('/')
           }
         })
         .catch((err) => {
           console.log(err)
         })
-      history.push('./sign-in')
+      history.push('/sign-in')
     }
   }, [history])
 

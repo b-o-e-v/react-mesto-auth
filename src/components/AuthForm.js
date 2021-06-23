@@ -1,12 +1,12 @@
-import { Link } from 'react-router-dom'
-
 export default function AuthForm({
   title,
+  btnText,
   email,
   password,
   handleChangeEmail,
   handleChangePassword,
   handleSubmit,
+  children
 }) {
   return (
     <section className='auth'>
@@ -26,7 +26,6 @@ export default function AuthForm({
           <input
             name='password'
             type='password'
-            pattern='^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$'
             className='auth__input'
             value={password || ''}
             onChange={handleChangePassword}
@@ -36,13 +35,9 @@ export default function AuthForm({
           />
         </fieldset>
         <button className='auth__btn' type='submit'>
-          {title === 'Вход' ? 'Войти' : 'Зарегистрироваться'}
+          {btnText}
         </button>
-        {title === 'Регистрация' && (
-          <Link to='/sign-in' className='auth__link'>
-            Уже зарегистрированы? Войти
-          </Link>
-        )}
+        {children}
       </form>
     </section>
   )

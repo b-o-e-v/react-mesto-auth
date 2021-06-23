@@ -24,6 +24,7 @@ export default function Login({ onLogin }) {
   return (
     <AuthForm
       title='Вход'
+      btnText='Войти'
       email={email}
       password={password}
       handleChangeEmail={handleChangeEmail}
